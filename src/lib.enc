@@ -1,0 +1,84 @@
+%macro exit 1 ; takes code status as input
+mov rax,60
+mov rdi,%1
+syscall
+%endmacro
+
+%macro print_str 2  ;first parameteris pointer to string and second parameter is number of characters
+mov rax,1
+mov rdi,1
+mov rsi,%1
+mov rdx,%2
+syscall
+%endmacro
+
+%macro str_to_num 1 ;takes a string as an input (that holds a decimal number) and converts it to integer stored in {RAX}
+xor rax,rax
+mov rsi,%1
+mov rbx,10
+%%loop:
+	xor rdx,rdx
+	mul rbx
+	movzx r15,byte [rsi]
+	
+	sub r15,48
+	add rax,r15
+	inc rsi
+	cmp byte [rsi],10
+	jne %%loop
+%endmacro
+%macro num_to_str 1 ; takes an empty string as input and a number in RAX , and fills the input string with the decimal number terminated with '\0' 
+mov rbx,10
+xor rcx,rcx
+%%loop:
+	inc rcx
+	xor rdx,rdx
+	div rbx
+	add rdx,48
+	push rdx
+	cmp rax,0
+	jne %%loop
+	xor r8,r8
+	mov rsi,%1
+%%loop2:
+	dec rcx
+	pop r8
+	mov byte [rsi],r8b
+	inc rsi
+	cmp rcx,0
+	jne %%loop2
+mov byte [rsi],0
+%endmacro
+%macro stringlength10 1  ;takes a string as input and returns its length in rcx (the input string must be terminated with \n)
+mov rsi,%1
+xor rcx ,rcx
+%%loop:
+        cmp byte [rsi],10
+        je %%f_loop
+        inc rcx
+        inc rsi
+        jmp %%loop
+%%f_loop:
+%endmacro
+
+	
+%macro stringlength0 1	;takes a string as input and returns its length in rcx (the input string must be null terminated)
+mov rsi,%1
+xor rcx ,rcx
+%%loop:
+	cmp byte [rsi],0
+	je %%f_loop
+	inc rcx
+	inc rsi
+	jmp %%loop
+%%f_loop:
+%endmacro
+		
+%macro user_input 2 ;first input is string , second input is number of characters to read
+mov rax,0
+mov rdi,0
+mov rsi,%1
+mov rdx,%2
+syscall
+%endmacro
+	
